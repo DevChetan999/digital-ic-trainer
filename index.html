@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Digital IC Trainer Kit Simulator</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#dfe3e7;
+}
+
+body{
+    overflow-x:hidden;
+    color:white;
+}
+
+/* ================= HEADER ================= */
+
+header{
+    min-height:75px;
+    background:linear-gradient(90deg,#17385d,#28547f);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 22px;
+    box-shadow:0 3px 10px #0006;
+    gap:15px;
+}
+
+header h1{
+    margin:0;
+    font-size:27px;
+}
+
+header p{
+    margin:5px 0 0;
+    color:#cbd8e5;
+    font-size:14px;
+}
+
+.dte{
+    text-align:right;
+    font-size:26px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.dte small{
+    display:block;
+    font-size:11px;
+    font-weight:normal;
+}
+
+/* ================= WORKSPACE ================= */
+
+.workspace{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 310px;
+    gap:15px;
+    padding:15px;
+}
+
+/* ================= BOARD ================= */
+
+.board{
+    position:relative;
+    width:100%;
+    min-height:790px;
+    height:790px;
+    border:9px solid #555;
+    border-radius:15px;
+    background:
+        linear-gradient(
+            145deg,
+            #171b1d,
+            #070909 60%,
+            #1c2022
+        );
+    box-shadow:
+        0 12px 30px #0007,
+        inset 0 0 20px #000;
+    overflow:hidden;
+}
+
+/* ================= SCREWS ================= */
+
+.screw{
+    position:absolute;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #eee,
+            #777 45%,
+            #222 48%,
+            #aaa 60%,
+            #222 65%
+        );
+    border:1px solid #111;
+    z-index:100;
+}
+
+.s1{left:10px;top:10px}
+.s2{right:10px;top:10px}
+.s3{left:10px;bottom:10px}
+.s4{right:10px;bottom:10px}
+
+/* ================= PANELS ================= */
+
+.panel{
+    border:1px solid #aab4bc;
+    border-radius:6px;
+    padding:13px;
+    background:linear-gradient(145deg,#111718,#080b0c);
+    box-shadow:inset 0 0 15px #0008;
+}
+
+.title{
+    text-align:center;
+    font-weight:bold;
+    font-size:15px;
+    color:#dce5ec;
+    margin-bottom:10px;
+}
+
+/* ================= POWER ================= */
+
+.power{
+    position:absolute;
+    left:30px;
+    top:30px;
+    width:285px;
+    height:125px;
+}
+
+.powerrow{
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+}
+
+.terminal{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    border:5px solid #222;
+    box-shadow:inset 0 0 7px #000,0 2px 4px #000;
+}
+
+.red{
+    background:#d92818;
+}
+
+.black{
+    background:#111;
+}
+
+/* ================= LED ================= */
+
+.led{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#18351e;
+    box-shadow:0 0 4px #000;
+}
+
+.led.on{
+    background:#4cff63;
+    box-shadow:0 0 12px #4cff63,0 0 25px #4cff6344;
+}
+
+/* ================= SWITCH ================= */
+
+.switch{
+    width:42px;
+    height:65px;
+    background:#15191b;
+    border:1px solid #777;
+    border-radius:5px;
+    position:relative;
+    cursor:pointer;
+    touch-action:manipulation;
+}
+
+.switch:after{
+    content:"";
+    position:absolute;
+    left:10px;
+    top:28px;
+    width:20px;
+    height:32px;
+    border-radius:10px;
+    background:#444;
+    transition:.2s;
+}
+
+.switch.on:after{
+    top:4px;
+    background:#ddd;
+    box-shadow:0 0 7px white;
+}
+
+/* ================= GATE SELECTOR ================= */
+
+.selector{
+    position:absolute;
+    left:330px;
+    right:280px;
+    top:30px;
+    height:125px;
+}
+
+.gates{
+    display:flex;
+    justify-content:space-around;
+    gap:5px;
+}
+
+.gate{
+    width:60px;
+    min-width:45px;
+    text-align:center;
+    cursor:pointer;
+    touch-action:manipulation;
+}
+
+.gate .lamp{
+    width:22px;
+    height:22px;
+    margin:auto;
+    border-radius:50%;
+    background:#333;
+    border:2px solid #111;
+}
+
+.gate.selected .lamp{
+    background:#50ff65;
+    box-shadow:0 0 12px #50ff65;
+}
+
+.gate span{
+    display:block;
+    font-size:11px;
+    margin-top:4px;
+}
+
+.symbol{
+    font-size:20px;
+    margin-top:3px;
+}
+
+/* ================= IC SELECT ================= */
+
+.icselect{
+    position:absolute;
+    right:30px;
+    top:30px;
+    width:235px;
+    height:125px;
+}
+
+select{
+    width:100%;
+    padding:10px;
+    background:#171c20;
+    color:white;
+    border:1px solid #888;
+    border-radius:5px;
+    font-size:14px;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    position:absolute;
+    left:30px;
+    right:30px;
+    top:175px;
+    bottom:160px;
+    display:grid;
+    grid-template-columns:165px minmax(280px,1fr) 165px;
+    gap:15px;
+}
+
+/* ================= INPUTS ================= */
+
+.inputs,
+.outputs{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.inputbox,
+.outputbox{
+    padding:13px;
+    border:1px solid #9aa6ad;
+    border-radius:5px;
+    background:#101416;
+    text-align:center;
+}
+
+.inputbox h3,
+.outputbox h3{
+    margin:0 0 12px;
+    font-size:15px;
+}
+
+.swrow{
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+}
+
+/* ================= PINS ================= */
+
+.pin{
+    width:32px;
+    height:32px;
+    min-width:32px;
+    border-radius:50%;
+    cursor:crosshair;
+    position:relative;
+    z-index:40;
+    border:4px solid #222;
+    box-shadow:0 1px 4px #000;
+    transition:.12s;
+    touch-action:none;
+}
+
+.pin:hover{
+    transform:scale(1.12);
+}
+
+.pin.input{
+    background:#e93624;
+}
+
+.pin.output{
+    background:#168cff;
+}
+
+.pin.power{
+    background:#e93624;
+}
+
+.pin.gnd{
+    background:#111;
+}
+
+.pin.selected{
+    box-shadow:
+        0 0 0 4px #ffe600,
+        0 0 15px #ffe600;
+    transform:scale(1.15);
+}
+
+/* ================= BREADBOARD ================= */
+
+.bread{
+    position:relative;
+    background:linear-gradient(#e8e5dc,#cbc8c0);
+    border:4px solid #888;
+    border-radius:7px;
+    box-shadow:inset 0 0 15px #555;
+    overflow:hidden;
+    min-width:0;
+}
+
+.holes{
+    position:absolute;
+    inset:35px 15px;
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    grid-auto-rows:21px;
+    gap:0 6px;
+}
+
+.hole{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#66635c;
+    box-shadow:inset 0 1px 2px #000;
+    justify-self:center;
+    align-self:center;
+}
+
+/* ================= IC ================= */
+
+.ic{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:145px;
+    height:78px;
+    background:linear-gradient(#333,#080808);
+    border:2px solid #777;
+    border-radius:5px;
+    box-shadow:0 6px 10px #000;
+}
+
+.iclabel{
+    text-align:center;
+    padding-top:27px;
+    font-weight:bold;
+    font-size:17px;
+}
+
+.notch{
+    position:absolute;
+    left:3px;
+    top:29px;
+    width:10px;
+    height:18px;
+    background:#000;
+    border-radius:0 12px 12px 0;
+}
+
+.icpin{
+    position:absolute;
+    width:13px;
+    height:5px;
+    background:#bbb;
+}
+
+.icpin.left{left:-13px}
+.icpin.right{right:-13px}
+
+.p1{top:8px}
+.p2{top:27px}
+.p3{top:46px}
+.p4{top:65px}
+
+/* ================= SVG ================= */
+
+#wireSvg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:20;
+}
+
+.wire{
+    fill:none;
+    stroke:#e53935;
+    stroke-width:5;
+    stroke-linecap:round;
+    filter:drop-shadow(0 2px 2px #000);
+}
+
+.preview-wire{
+    fill:none;
+    stroke:#ffe600;
+    stroke-width:5;
+    stroke-linecap:round;
+    stroke-dasharray:10 7;
+    opacity:.8;
+}
+
+/* ================= BOTTOM ================= */
+
+.bottom{
+    position:absolute;
+    left:30px;
+    right:30px;
+    bottom:25px;
+    height:105px;
+    display:grid;
+    grid-template-columns:190px 1fr 1fr;
+    gap:10px;
+}
+
+.termrow{
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+}
+
+.bterm{
+    text-align:center;
+    font-size:10px;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    color:#26343f;
+    background:white;
+    border:1px solid #ccd3d8;
+    border-radius:7px;
+    padding:15px;
+    box-shadow:0 5px 18px #0002;
+}
+
+.sidebar h3{
+    color:#164d7c;
+    margin-top:5px;
+}
+
+.instructions{
+    font-size:13px;
+    line-height:1.7;
+    padding-left:20px;
+}
+
+.connection-status{
+    margin-top:10px;
+    padding:10px;
+    border-radius:5px;
+    background:#16232d;
+    color:#bfe4ff;
+    font-size:12px;
+    text-align:center;
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+    width:100%;
+    border:0;
+    padding:11px;
+    margin:4px 0;
+    border-radius:5px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    touch-action:manipulation;
+}
+
+.btn:active{
+    transform:scale(.98);
+}
+
+.reset{background:#159b51}
+.remove{background:#d93a36}
+.undo{background:#7145b8}
+.redo{background:#df7a22}
+.truth{background:#2874c7}
+
+.btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+}
+
+/* ================= STATUS ================= */
+
+.status{
+    margin-top:12px;
+    padding:12px;
+    border-radius:5px;
+    background:#eef4fa;
+}
+
+.equation{
+    margin-top:10px;
+    padding:13px;
+    background:#17232d;
+    color:#5cff75;
+    border-radius:5px;
+    text-align:center;
+    font-size:21px;
+    font-weight:bold;
+    box-shadow:inset 0 0 8px #000;
+    overflow-x:auto;
+}
+
+.truth-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+.truth-table th,
+.truth-table td{
+    border:1px solid #ccd7e0;
+    padding:6px;
+    text-align:center;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(max-width:1200px){
+
+    .workspace{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar{
+        order:2;
+    }
+
+    .board{
+        width:100%;
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:750px){
+
+    header{
+        min-height:auto;
+        padding:12px;
+    }
+
+    header h1{
+        font-size:19px;
+    }
+
+    header p{
+        font-size:11px;
+    }
+
+    .dte{
+        font-size:19px;
+    }
+
+    .dte small{
+        font-size:8px;
+    }
+
+    .workspace{
+        padding:8px;
+        display:block;
+    }
+
+    .board{
+        height:auto;
+        min-height:950px;
+        border-width:6px;
+        overflow:hidden;
+    }
+
+    .power{
+        position:absolute;
+        left:15px;
+        top:15px;
+        width:calc(50% - 22px);
+        height:115px;
+    }
+
+    .selector{
+        position:absolute;
+        left:calc(50% + 7px);
+        right:15px;
+        top:15px;
+        height:115px;
+    }
+
+    .icselect{
+        position:absolute;
+        left:15px;
+        right:15px;
+        top:142px;
+        width:auto;
+        height:95px;
+    }
+
+    .main{
+        position:absolute;
+        left:15px;
+        right:15px;
+        top:250px;
+        bottom:auto;
+        height:515px;
+
+        display:grid;
+
+        grid-template-columns:
+            100px
+            minmax(0,1fr)
+            100px;
+
+        gap:7px;
+    }
+
+    .inputbox,
+    .outputbox{
+        padding:8px 4px;
+    }
+
+    .inputbox h3,
+    .outputbox h3{
+        font-size:11px;
+        margin-bottom:8px;
+    }
+
+    .switch{
+        width:35px;
+        height:55px;
+    }
+
+    .switch:after{
+        left:8px;
+        top:25px;
+        width:17px;
+        height:27px;
+    }
+
+    .switch.on:after{
+        top:3px;
+    }
+
+    .pin{
+        width:38px;
+        height:38px;
+        min-width:38px;
+        border-width:5px;
+    }
+
+    .bread{
+        min-height:515px;
+    }
+
+    .holes{
+        inset:25px 7px;
+        grid-auto-rows:19px;
+        gap:0 2px;
+    }
+
+    .hole{
+        width:5px;
+        height:5px;
+    }
+
+    .ic{
+        width:125px;
+        height:70px;
+    }
+
+    .iclabel{
+        padding-top:25px;
+        font-size:14px;
+    }
+
+    .main .pin[data-pin="IC1"]{
+        left:calc(50% - 100px) !important;
+        top:calc(50% - 18px) !important;
+    }
+
+    .main .pin[data-pin="IC2"]{
+        left:calc(50% - 100px) !important;
+        top:calc(50% + 18px) !important;
+    }
+
+    .main .pin[data-pin="ICOUT"]{
+        left:calc(50% + 62px) !important;
+        top:calc(50% - 18px) !important;
+    }
+
+    .bottom{
+        position:absolute;
+        left:15px;
+        right:15px;
+        bottom:15px;
+        height:145px;
+
+        display:grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap:7px;
+    }
+
+    .bottom .panel:first-child{
+        display:none;
+    }
+
+    .bottom .panel:nth-child(2),
+    .bottom .panel:nth-child(3){
+        min-width:0;
+    }
+
+    .termrow{
+        gap:5px;
+    }
+
+    .terminal{
+        width:28px;
+        height:28px;
+    }
+
+    .gate{
+        width:40px;
+    }
+
+    .gate span{
+        font-size:8px;
+    }
+
+    .symbol{
+        font-size:16px;
+    }
+
+    .gate .lamp{
+        width:17px;
+        height:17px;
+    }
+
+    .sidebar{
+        margin-top:10px;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media(max-width:430px){
+
+    header h1{
+        font-size:16px;
+    }
+
+    .dte{
+        font-size:16px;
+    }
+
+    .power{
+        width:calc(50% - 20px);
+    }
+
+    .selector{
+        left:calc(50% + 5px);
+    }
+
+    .gate{
+        width:34px;
+    }
+
+    .gate span{
+        font-size:7px;
+    }
+
+    .symbol{
+        font-size:14px;
+    }
+
+    .main{
+        grid-template-columns:
+            88px
+            minmax(0,1fr)
+            88px;
+    }
+
+    .ic{
+        width:110px;
+    }
+
+    .equation{
+        font-size:18px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <div>
+        <h1>Digital IC Trainer Kit Simulator</h1>
+        <p>Learn • Practice • Build Logic</p>
+    </div>
+
+    <div class="dte">
+        DTE
+        <small>Diploma in Technical Education</small>
+    </div>
+
+</header>
+
+
+<div class="workspace">
+
+
+<!-- =====================================================
+     TRAINER BOARD
+===================================================== -->
+
+<section class="board" id="board">
+
+    <div class="screw s1"></div>
+    <div class="screw s2"></div>
+    <div class="screw s3"></div>
+    <div class="screw s4"></div>
+
+
+    <svg id="wireSvg"></svg>
+
+
+    <!-- POWER -->
+
+    <div class="panel power">
+
+        <div class="title">
+            POWER SUPPLY
+        </div>
+
+        <div class="powerrow">
+
+            <div
+                class="switch on"
+                id="powerSwitch">
+            </div>
+
+            <div>
+                <div class="terminal red"></div>
+                <small>+5V</small>
+            </div>
+
+            <div>
+                <div class="terminal black"></div>
+                <small>GND</small>
+            </div>
+
+            <div
+                class="led on"
+                id="powerLed">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- GATE SELECTOR -->
+
+    <div class="panel selector">
+
+        <div class="title">
+            LOGIC GATE
+        </div>
+
+        <div
+            class="gates"
+            id="gates">
+        </div>
+
+    </div>
+
+
+    <!-- IC SELECT -->
+
+    <div class="panel icselect">
+
+        <div class="title">
+            IC SELECT
+        </div>
+
+        <select id="icSelect">
+
+            <option>7408 (AND)</option>
+            <option>7432 (OR)</option>
+            <option>7404 (NOT)</option>
+            <option>7400 (NAND)</option>
+            <option>7402 (NOR)</option>
+            <option>7486 (XOR)</option>
+            <option>74266 (XNOR)</option>
+
+        </select>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+        <!-- INPUTS -->
+
+        <div class="inputs">
+
+            <div class="inputbox">
+
+                <h3>INPUT A</h3>
+
+                <div class="swrow">
+
+                    <div
+                        class="switch"
+                        data-input="A">
+                    </div>
+
+                    <div
+                        class="pin input connect-pin"
+                        data-pin="A">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="inputbox">
+
+                <h3>INPUT B</h3>
+
+                <div class="swrow">
+
+                    <div
+                        class="switch"
+                        data-input="B">
+                    </div>
+
+                    <div
+                        class="pin input connect-pin"
+                        data-pin="B">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="inputbox">
+
+                <h3>POWER</h3>
+
+                <div class="swrow">
+
+                    <div>
+                        <div
+                            class="pin power connect-pin"
+                            data-pin="VCC">
+                        </div>
+                        <small>VCC</small>
+                    </div>
+
+                    <div>
+                        <div
+                            class="pin gnd connect-pin"
+                            data-pin="GND">
+                        </div>
+                        <small>GND</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BREADBOARD -->
+
+        <div class="bread" id="bread">
+
+            <div
+                class="holes"
+                id="holes">
+            </div>
+
+
+            <div class="ic">
+
+                <div class="notch"></div>
+
+                <div
+                    class="iclabel"
+                    id="icLabel">
+                    7408
+                </div>
+
+                <i class="icpin left p1"></i>
+                <i class="icpin left p2"></i>
+                <i class="icpin left p3"></i>
+                <i class="icpin left p4"></i>
+
+                <i class="icpin right p1"></i>
+                <i class="icpin right p2"></i>
+                <i class="icpin right p3"></i>
+                <i class="icpin right p4"></i>
+
+            </div>
+
+
+            <div
+                class="pin input connect-pin"
+                id="icInput1"
+                data-pin="IC1"
+                style="
+                    position:absolute;
+                    left:calc(50% - 110px);
+                    top:calc(50% - 20px);
+                ">
+            </div>
+
+
+            <div
+                class="pin input connect-pin"
+                id="icInput2"
+                data-pin="IC2"
+                style="
+                    position:absolute;
+                    left:calc(50% - 110px);
+                    top:calc(50% + 20px);
+                ">
+            </div>
+
+
+            <div
+                class="pin output connect-pin"
+                id="icOutput"
+                data-pin="ICOUT"
+                style="
+                    position:absolute;
+                    left:calc(50% + 80px);
+                    top:calc(50% - 20px);
+                ">
+            </div>
+
+        </div>
+
+
+        <!-- OUTPUT -->
+
+        <div class="outputs">
+
+            <div class="outputbox">
+
+                <h3>OUTPUT Y</h3>
+
+                <div
+                    class="led"
+                    id="outputLed"
+                    style="
+                        width:30px;
+                        height:30px;
+                        margin:15px auto;
+                    ">
+                </div>
+
+                <div
+                    class="pin output connect-pin"
+                    data-pin="Y"
+                    style="margin:auto;">
+                </div>
+
+            </div>
+
+
+            <div class="outputbox">
+
+                <h3>OUTPUT</h3>
+
+                <div
+                    id="outText"
+                    style="
+                        font-size:32px;
+                        font-weight:bold;
+                    ">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOTTOM -->
+
+    <div class="bottom">
+
+        <div class="panel">
+
+            <div class="title">
+                VCC / GND
+            </div>
+
+            <div class="termrow">
+
+                <div class="bterm">
+                    <div class="terminal red"></div>
+                    +5V
+                </div>
+
+                <div class="bterm">
+                    <div class="terminal black"></div>
+                    GND
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <div class="title">
+                INPUTS
+            </div>
+
+            <div class="termrow">
+
+                <div class="bterm">
+                    <div class="pin input"></div>
+                    A
+                </div>
+
+                <div class="bterm">
+                    <div class="pin input"></div>
+                    B
+                </div>
+
+                <div class="bterm">
+                    <div class="pin input"></div>
+                    C
+                </div>
+
+                <div class="bterm">
+                    <div class="pin input"></div>
+                    D
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <div class="title">
+                OUTPUTS
+            </div>
+
+            <div class="termrow">
+
+                <div class="bterm">
+                    <div class="led on"></div>
+                    Y1
+                </div>
+
+                <div class="bterm">
+                    <div class="led"></div>
+                    Y2
+                </div>
+
+                <div class="bterm">
+                    <div class="led"></div>
+                    Y3
+                </div>
+
+                <div class="bterm">
+                    <div class="led"></div>
+                    Y4
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <h3>How to Connect</h3>
+
+    <ol class="instructions">
+
+        <li>Select a gate.</li>
+        <li>Touch/press a pin.</li>
+        <li>Drag the wire.</li>
+        <li>Release on another pin.</li>
+        <li>Use Undo / Redo.</li>
+
+    </ol>
+
+
+    <div
+        class="connection-status"
+        id="connectionStatus">
+
+        Ready to connect
+
+    </div>
+
+
+    <h3>Controls</h3>
+
+
+    <button
+        class="btn reset"
+        id="reset">
+        ↻ Reset
+    </button>
+
+
+    <button
+        class="btn remove"
+        id="remove">
+        Remove Last Wire
+    </button>
+
+
+    <button
+        class="btn undo"
+        id="undoBtn"
+        disabled>
+        ↶ Undo
+    </button>
+
+
+    <button
+        class="btn redo"
+        id="redoBtn"
+        disabled>
+        ↷ Redo
+    </button>
+
+
+    <button
+        class="btn truth"
+        id="truthBtn">
+        Truth Table
+    </button>
+
+
+    <!-- SELECTED GATE -->
+
+    <div class="status">
+
+        <b>Selected Gate</b>
+
+        <h3 id="selectedName">
+            AND Gate
+        </h3>
+
+        <div>
+            IC:
+            <b id="selectedIc">
+                7408
+            </b>
+        </div>
+
+    </div>
+
+
+    <!-- EQUATION -->
+
+    <div class="status">
+
+        <b>Boolean Equation</b>
+
+        <div
+            class="equation"
+            id="equation">
+            Y = A · B
+        </div>
+
+    </div>
+
+
+    <!-- TRUTH TABLE -->
+
+    <div class="status">
+
+        <b>Truth Table</b>
+
+        <br><br>
+
+        <table class="truth-table">
+
+            <thead>
+
+                <tr>
+                    <th>A</th>
+                    <th>B</th>
+                    <th>Y</th>
+                </tr>
+
+            </thead>
+
+            <tbody
+                id="truthBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- VALUES -->
+
+    <div class="status">
+
+        <b>Current Values</b>
+
+        <p>
+            A:
+            <b id="aVal">0</b>
+        </p>
+
+        <p>
+            B:
+            <b id="bVal">0</b>
+        </p>
+
+        <p>
+            Y:
+            <b id="yVal">0</b>
+        </p>
+
+    </div>
+
+</aside>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GATE DEFINITIONS
+===================================================== */
+
+const gateDefinitions = {
+
+    AND:{
+        ic:"7408",
+        equation:"Y = A · B",
+        fn:(a,b)=>a & b,
+        symbol:"∧"
+    },
+
+    OR:{
+        ic:"7432",
+        equation:"Y = A + B",
+        fn:(a,b)=>a | b,
+        symbol:"∨"
+    },
+
+    NOT:{
+        ic:"7404",
+        equation:"Y = Ā",
+        fn:(a,b)=>a ? 0 : 1,
+        symbol:"¬"
+    },
+
+    NAND:{
+        ic:"7400",
+        equation:"Y = (A · B)̅",
+        fn:(a,b)=>!(a & b) ? 1 : 0,
+        symbol:"⊼"
+    },
+
+    NOR:{
+        ic:"7402",
+        equation:"Y = (A + B)̅",
+        fn:(a,b)=>!(a | b) ? 1 : 0,
+        symbol:"⊽"
+    },
+
+    XOR:{
+        ic:"7486",
+        equation:"Y = A ⊕ B",
+        fn:(a,b)=>a ^ b,
+        symbol:"⊕"
+    },
+
+    XNOR:{
+        ic:"74266",
+        equation:"Y = A ⊙ B",
+        fn:(a,b)=>!(a ^ b) ? 1 : 0,
+        symbol:"⊙"
+    }
+
+};
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let selectedGate = "AND";
+
+let inputs = {
+    A:0,
+    B:0
+};
+
+
+/* =====================================================
+   GATE BUTTONS
+===================================================== */
+
+const gateContainer =
+    document.getElementById("gates");
+
+Object.keys(gateDefinitions).forEach(name=>{
+
+    const gate =
+        document.createElement("div");
+
+    gate.className = "gate";
+
+    gate.dataset.gate = name;
+
+    if(name === "AND"){
+        gate.classList.add("selected");
+    }
+
+    gate.innerHTML = `
+        <div class="lamp"></div>
+        <span>${name}</span>
+        <div class="symbol">
+            ${gateDefinitions[name].symbol}
+        </div>
+    `;
+
+    gate.addEventListener("click",()=>{
+        selectGate(name);
+    });
+
+    gateContainer.appendChild(gate);
+
+});
+
+
+/* =====================================================
+   SELECT GATE
+===================================================== */
+
+function selectGate(name){
+
+    selectedGate = name;
+
+    document.querySelectorAll(".gate").forEach(gate=>{
+        gate.classList.toggle(
+            "selected",
+            gate.dataset.gate === name
+        );
+    });
+
+    document.getElementById("icLabel")
+        .textContent =
+        gateDefinitions[name].ic;
+
+    document.getElementById("selectedName")
+        .textContent =
+        name + " Gate";
+
+    document.getElementById("selectedIc")
+        .textContent =
+        gateDefinitions[name].ic;
+
+    document.getElementById("equation")
+        .textContent =
+        gateDefinitions[name].equation;
+
+    updateTruthTable();
+
+    calculateOutput();
+}
+
+
+/* =====================================================
+   IC SELECT
+===================================================== */
+
+document.getElementById("icSelect")
+.addEventListener("change",function(){
+
+    const value = this.value;
+
+    const gate =
+        Object.keys(gateDefinitions)
+        .find(name =>
+            value.startsWith(
+                gateDefinitions[name].ic
+            )
+        );
+
+    if(gate){
+        selectGate(gate);
+    }
+
+});
+
+
+/* =====================================================
+   INPUT SWITCHES
+===================================================== */
+
+document.querySelectorAll(
+    ".switch[data-input]"
+)
+.forEach(sw=>{
+
+    sw.addEventListener("click",function(){
+
+        const input =
+            this.dataset.input;
+
+        inputs[input] =
+            inputs[input] ? 0 : 1;
+
+        this.classList.toggle(
+            "on",
+            inputs[input] === 1
+        );
+
+        calculateOutput();
+
+    });
+
+});
+
+
+/* =====================================================
+   OUTPUT
+===================================================== */
+
+function calculateOutput(){
+
+    const result =
+        gateDefinitions[selectedGate]
+        .fn(
+            inputs.A,
+            inputs.B
+        )
+        ? 1
+        : 0;
+
+    document.getElementById("aVal")
+        .textContent = inputs.A;
+
+    document.getElementById("bVal")
+        .textContent = inputs.B;
+
+    document.getElementById("yVal")
+        .textContent = result;
+
+    document.getElementById("outText")
+        .textContent = result;
+
+    document.getElementById("outputLed")
+        .classList.toggle(
+            "on",
+            result === 1
+        );
+
+}
+
+
+/* =====================================================
+   TRUTH TABLE
+===================================================== */
+
+function updateTruthTable(){
+
+    const body =
+        document.getElementById(
+            "truthBody"
+        );
+
+    body.innerHTML = "";
+
+    [
+        [0,0],
+        [0,1],
+        [1,0],
+        [1,1]
+    ].forEach(([a,b])=>{
+
+        const result =
+            gateDefinitions[selectedGate]
+            .fn(a,b)
+            ? 1
+            : 0;
+
+        body.innerHTML += `
+            <tr>
+                <td>${a}</td>
+                <td>${b}</td>
+                <td>${result}</td>
+            </tr>
+        `;
+
+    });
+
+}
+
+
+/* =====================================================
+   WIRE SYSTEM
+===================================================== */
+
+const board =
+    document.getElementById("board");
+
+const wireSvg =
+    document.getElementById("wireSvg");
+
+const status =
+    document.getElementById(
+        "connectionStatus"
+    );
+
+let wires = [];
+
+let redoStack = [];
+
+let dragging = false;
+
+let dragStartPin = null;
+
+let previewPath = null;
+
+
+/* =====================================================
+   GET PIN POSITION
+===================================================== */
+
+function getPinPosition(pin){
+
+    const pinRect =
+        pin.getBoundingClientRect();
+
+    const boardRect =
+        board.getBoundingClientRect();
+
+    return {
+
+        x:
+            pinRect.left +
+            pinRect.width / 2 -
+            boardRect.left,
+
+        y:
+            pinRect.top +
+            pinRect.height / 2 -
+            boardRect.top
+
+    };
+
+}
+
+
+/* =====================================================
+   PATH
+===================================================== */
+
+function createPath(start,end){
+
+    const distance =
+        Math.abs(
+            end.x - start.x
+        );
+
+    const curve =
+        Math.max(
+            40,
+            distance * .45
+        );
+
+    return `
+        M ${start.x} ${start.y}
+        C
+        ${start.x + curve} ${start.y},
+        ${end.x - curve} ${end.y},
+        ${end.x} ${end.y}
+    `;
+
+}
+
+
+/* =====================================================
+   DRAW WIRE
+===================================================== */
+
+function drawWire(wire){
+
+    const start =
+        getPinPosition(
+            wire.from
+        );
+
+    const end =
+        getPinPosition(
+            wire.to
+        );
+
+    const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+    path.classList.add("wire");
+
+    path.setAttribute(
+        "d",
+        createPath(start,end)
+    );
+
+    wireSvg.appendChild(path);
+
+    wire.element = path;
+
+}
+
+
+/* =====================================================
+   START DRAG
+===================================================== */
+
+document.querySelectorAll(
+    ".connect-pin"
+)
+.forEach(pin=>{
+
+    pin.addEventListener(
+        "pointerdown",
+        function(event){
+
+            event.preventDefault();
+
+            dragging = true;
+
+            dragStartPin = this;
+
+            this.classList.add(
+                "selected"
+            );
+
+            previewPath =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "path"
+                );
+
+            previewPath.classList.add(
+                "preview-wire"
+            );
+
+            wireSvg.appendChild(
+                previewPath
+            );
+
+            status.textContent =
+                "🔌 Drag to another pin...";
+
+            /*
+                Keep touch gesture
+                inside wire mode.
+            */
+
+            if(this.setPointerCapture){
+                try{
+                    this.setPointerCapture(
+                        event.pointerId
+                    );
+                }catch(e){}
+            }
+
+        }
+    );
+
+});
+
+
+/* =====================================================
+   POINTER MOVE
+===================================================== */
+
+document.addEventListener(
+    "pointermove",
+    function(event){
+
+        if(
+            !dragging ||
+            !dragStartPin ||
+            !previewPath
+        ){
+            return;
+        }
+
+        const boardRect =
+            board.getBoundingClientRect();
+
+        const start =
+            getPinPosition(
+                dragStartPin
+            );
+
+        const end = {
+
+            x:
+                event.clientX -
+                boardRect.left,
+
+            y:
+                event.clientY -
+                boardRect.top
+
+        };
+
+        previewPath.setAttribute(
+            "d",
+            createPath(
+                start,
+                end
+            )
+        );
+
+
+        document.querySelectorAll(
+            ".connect-pin"
+        )
+        .forEach(pin=>{
+            pin.classList.remove(
+                "selected"
+            );
+        });
+
+
+        dragStartPin.classList.add(
+            "selected"
+        );
+
+
+        const element =
+            document.elementFromPoint(
+                event.clientX,
+                event.clientY
+            );
+
+        const target =
+            element
+            ? element.closest(
+                ".connect-pin"
+            )
+            : null;
+
+
+        if(
+            target &&
+            target !== dragStartPin
+        ){
+
+            target.classList.add(
+                "selected"
+            );
+
+            status.textContent =
+                "✓ Release to connect";
+
+        }
+        else{
+
+            status.textContent =
+                "🔌 Drag to another pin...";
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   FINISH DRAG
+===================================================== */
+
+document.addEventListener(
+    "pointerup",
+    function(event){
+
+        if(!dragging){
+            return;
+        }
+
+        const element =
+            document.elementFromPoint(
+                event.clientX,
+                event.clientY
+            );
+
+        const target =
+            element
+            ? element.closest(
+                ".connect-pin"
+            )
+            : null;
+
+
+        if(previewPath){
+
+            previewPath.remove();
+
+            previewPath = null;
+
+        }
+
+
+        document.querySelectorAll(
+            ".connect-pin"
+        )
+        .forEach(pin=>{
+            pin.classList.remove(
+                "selected"
+            );
+        });
+
+
+        if(
+            !target ||
+            target === dragStartPin
+        ){
+
+            dragging = false;
+
+            dragStartPin = null;
+
+            status.textContent =
+                "✕ Connection cancelled";
+
+            setTimeout(()=>{
+                status.textContent =
+                    "Ready to connect";
+            },700);
+
+            return;
+
+        }
+
+
+        /*
+            CREATE WIRE
+        */
+
+        const wire = {
+
+            from:dragStartPin,
+
+            to:target,
+
+            element:null
+
+        };
+
+
+        drawWire(wire);
+
+        wires.push(wire);
+
+        /*
+            New action clears redo.
+        */
+
+        redoStack = [];
+
+
+        dragging = false;
+
+        dragStartPin = null;
+
+        status.textContent =
+            "✓ Wire connected";
+
+
+        updateUndoRedo();
+
+    }
+);
+
+
+/* =====================================================
+   UNDO
+===================================================== */
+
+function undoWire(){
+
+    if(wires.length === 0){
+        return;
+    }
+
+    const wire =
+        wires.pop();
+
+    if(wire.element){
+        wire.element.remove();
+        wire.element = null;
+    }
+
+    redoStack.push(wire);
+
+    status.textContent =
+        "↶ Wire undone";
+
+    updateUndoRedo();
+
+}
+
+
+/* =====================================================
+   REDO
+===================================================== */
+
+function redoWire(){
+
+    if(redoStack.length === 0){
+        return;
+    }
+
+    const wire =
+        redoStack.pop();
+
+    drawWire(wire);
+
+    wires.push(wire);
+
+    status.textContent =
+        "↷ Wire restored";
+
+    updateUndoRedo();
+
+}
+
+
+/* =====================================================
+   REMOVE LAST
+===================================================== */
+
+function removeLastWire(){
+
+    if(wires.length === 0){
+        return;
+    }
+
+    const wire =
+        wires.pop();
+
+    if(wire.element){
+        wire.element.remove();
+        wire.element = null;
+    }
+
+    redoStack = [];
+
+    status.textContent =
+        "Wire removed";
+
+    updateUndoRedo();
+
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+function resetAll(){
+
+    wires.forEach(wire=>{
+
+        if(wire.element){
+            wire.element.remove();
+        }
+
+    });
+
+    wires = [];
+
+    redoStack = [];
+
+    if(previewPath){
+        previewPath.remove();
+        previewPath = null;
+    }
+
+    dragging = false;
+
+    dragStartPin = null;
+
+
+    document.querySelectorAll(
+        ".connect-pin"
+    )
+    .forEach(pin=>{
+        pin.classList.remove(
+            "selected"
+        );
+    });
+
+
+    inputs.A = 0;
+    inputs.B = 0;
+
+
+    document.querySelectorAll(
+        ".switch[data-input]"
+    )
+    .forEach(sw=>{
+        sw.classList.remove("on");
+    });
+
+
+    selectGate("AND");
+
+
+    /*
+        Reset IC selector
+    */
+
+    document.getElementById(
+        "icSelect"
+    ).selectedIndex = 0;
+
+
+    status.textContent =
+        "Ready to connect";
+
+
+    updateUndoRedo();
+
+}
+
+
+/* =====================================================
+   UNDO REDO BUTTON STATE
+===================================================== */
+
+function updateUndoRedo(){
+
+    document.getElementById(
+        "undoBtn"
+    ).disabled =
+        wires.length === 0;
+
+    document.getElementById(
+        "redoBtn"
+    ).disabled =
+        redoStack.length === 0;
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+document.getElementById(
+    "undoBtn"
+).addEventListener(
+    "click",
+    undoWire
+);
+
+
+document.getElementById(
+    "redoBtn"
+).addEventListener(
+    "click",
+    redoWire
+);
+
+
+document.getElementById(
+    "remove"
+).addEventListener(
+    "click",
+    removeLastWire
+);
+
+
+document.getElementById(
+    "reset"
+).addEventListener(
+    "click",
+    resetAll
+);
+
+
+/* =====================================================
+   KEYBOARD SHORTCUTS
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            (event.ctrlKey || event.metaKey) &&
+            event.key.toLowerCase() === "z" &&
+            !event.shiftKey
+        ){
+
+            event.preventDefault();
+
+            undoWire();
+
+        }
+
+
+        if(
+            (event.ctrlKey || event.metaKey) &&
+            event.key.toLowerCase() === "y"
+        ){
+
+            event.preventDefault();
+
+            redoWire();
+
+        }
+
+
+        if(
+            (event.ctrlKey || event.metaKey) &&
+            event.shiftKey &&
+            event.key.toLowerCase() === "z"
+        ){
+
+            event.preventDefault();
+
+            redoWire();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   REDRAW ON RESIZE / ORIENTATION
+===================================================== */
+
+function redrawWires(){
+
+    wires.forEach(wire=>{
+
+        if(wire.element){
+            wire.element.remove();
+        }
+
+        drawWire(wire);
+
+    });
+
+}
+
+
+window.addEventListener(
+    "resize",
+    redrawWires
+);
+
+window.addEventListener(
+    "orientationchange",
+    ()=>{
+        setTimeout(
+            redrawWires,
+            300
+        );
+    }
+);
+
+
+/* =====================================================
+   BREADBOARD HOLES
+===================================================== */
+
+const holes =
+    document.getElementById(
+        "holes"
+    );
+
+for(
+    let i=0;
+    i<110;
+    i++
+){
+
+    const hole =
+        document.createElement(
+            "i"
+        );
+
+    hole.className =
+        "hole";
+
+    holes.appendChild(
+        hole
+    );
+
+}
+
+
+/* =====================================================
+   TRUTH BUTTON
+===================================================== */
+
+document.getElementById(
+    "truthBtn"
+)
+.addEventListener(
+    "click",
+    function(){
+
+        document.querySelector(
+            ".truth-table"
+        ).scrollIntoView({
+            behavior:"smooth",
+            block:"center"
+        });
+
+    }
+);
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+selectGate("AND");
+
+updateTruthTable();
+
+calculateOutput();
+
+updateUndoRedo();
+
+</script>
+
+</body>
+</html>
